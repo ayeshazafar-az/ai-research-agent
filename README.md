@@ -1,10 +1,10 @@
 # AI Research Agent 🤖
 
-A beginner-friendly Streamlit web application that uses **CrewAI** and the **Groq API** to perform internet research and write comprehensive summary reports on any topic.
+A beginner-friendly Streamlit web application that uses **CrewAI** and the **Google Gemini API** to perform internet research and write comprehensive summary reports on any topic.
 
 ## Features
 * **Single Agent Setup:** Uses a Senior Research Analyst persona to conduct research.
-* **Internet Searching:** Integrated with `ddgs` to search the live web for factual data.
+* **Internet Searching:** Integrated with `ddgs` (DuckDuckGo) to search the live web for factual data.
 * **Beginner Friendly:** Clean, easy to read code with inline comments explaining each step.
 * **Secure API Keys:** No hardcoded secrets! Users can enter their API key via the web sidebar, or you can deploy securely using Streamlit Secrets.
 
@@ -27,7 +27,7 @@ A beginner-friendly Streamlit web application that uses **CrewAI** and the **Gro
    ```bash
    streamlit run app.py
    ```
-5. You can enter your Groq API key securely in the browser sidebar when the app opens!
+5. You can enter your Gemini API key securely in the browser sidebar when the app opens!
 
 ## How to Deploy to Streamlit Community Cloud (Without Leaking Secrets!)
 
@@ -46,6 +46,16 @@ When you deploy a public app, you **never** want to paste your API keys directly
    - Click on **Advanced Settings** before deploying (or go to App Settings > Secrets after deploying).
    - Add your API Key into the Secrets text box exactly like this:
      ```toml
-     GROQ_API_KEY = "gsk_your_real_api_key_here..."
+     GEMINI_API_KEY = "AIzaSy_your_real_api_key_here..."
      ```
-   - *The code in `app.py` is already set up to automatically read `GROQ_API_KEY` from Streamlit secrets and skip the sidebar prompt if it's there!*
+   - *The code in `app.py` is already set up to automatically read `GEMINI_API_KEY` from Streamlit secrets and skip the sidebar prompt if it's there!*
+
+## File Structure
+```
+ai-research-agent/
+│
+├── app.py                # Main Streamlit Application and CrewAI logic
+├── requirements.txt      # Python dependencies
+├── .gitignore            # Tells git not to upload .venv or local caches
+└── README.md             # This file!
+```
