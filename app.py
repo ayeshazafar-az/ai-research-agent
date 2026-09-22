@@ -49,6 +49,10 @@ def generate_pdf(text_content):
     safe_text = text_content.encode('latin-1', 'ignore').decode('latin-1')
     html_content = markdown.markdown(safe_text)
     
+    # Strip unresolvable internal markdown links (e.g., footnotes [1](#footer)) to prevent fpdf2 crashes
+    import re
+    html_content = re.sub(r'<a[^>]*href="#[^"]*"[^>]*>(.*?)</a>', r'\1', html_content)
+    
     pdf.write_html(html_content)
     return bytes(pdf.output())
 
