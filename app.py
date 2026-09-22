@@ -81,7 +81,7 @@ st.markdown("""
     
     /* Global App Background */
     .stApp {
-        background: radial-gradient(circle at top left, #13032b, #0B0F19, #050810) !important;
+        background: radial-gradient(circle at top left, #0F172A, #020617, #000000) !important;
     }
     
     /* Glassmorphism Sidebar */
@@ -220,7 +220,7 @@ if "current_chat_id" not in st.session_state:
 active_chat = st.session_state.all_chats[st.session_state.current_chat_id]
 
 # Bento Box Dashboard Layout
-main_col, side_col = st.columns([7, 3], gap="large")
+side_col, main_col = st.columns([3, 7], gap="large")
 
 with side_col:
     if st.button("➕ New Chat", use_container_width=True, type="primary"):
