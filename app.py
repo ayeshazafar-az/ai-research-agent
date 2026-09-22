@@ -54,26 +54,7 @@ def generate_pdf(text_content):
 # ==========================================
 st.set_page_config(page_title="AI Research Agent", page_icon="✨", layout="wide")
 
-# Sidebar Customization
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/8636/8636906.png", width=80)
-    st.header("⚙️ Engine Settings")
-    st.markdown("Ensure your API key is loaded to authorize the AI Engine.")
-    
-    cloud_key = st.secrets.get("GEMINI_API_KEY", "") if "GEMINI_API_KEY" in st.secrets else ""
-    if cloud_key:
-        api_key = cloud_key
-        st.success("API Key Status: **Authorized** ✅")
-    else:
-        api_key = st.text_input("🔑 Google Gemini API Key:", type="password")
-
-    st.divider()
-    st.markdown("### 📊 Metrics")
-    st.metric(label="Agent Status", value="Online", delta="Connected")
-    st.metric(label="Model Version", value="Gemini Flash", delta="Current")
-    
-    st.divider()
-    st.markdown("👨‍💻 **Built by Ayesha**")
+# We extracted the Engine Settings from here and shift it further down to a dedicated Right Column.
 
 # Custom Dashboard CSS (Bento Box / Glassmorphism)
 st.markdown("""
@@ -277,6 +258,26 @@ with st.sidebar:
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
 
+# Layout Split Setup
+chat_col, settings_col = st.columns([75, 25], gap="large")
+
+with settings_col:
+    with st.container(border=True):
+        st.header("⚙️ AI Engine Settings")
+        st.markdown("Ensure your API key is loaded to authorize the AI Engine.")
+        
+        cloud_key = st.secrets.get("GEMINI_API_KEY", "") if "GEMINI_API_KEY" in st.secrets else ""
+        if cloud_key:
+            api_key = cloud_key
+            st.success("API Key Status: **Authorized** ✅")
+        else:
+            api_key = st.text_input("🔑 Google Gemini API Key:", type="password")
+            
+        st.divider()
+        st.markdown("### 📊 Metrics")
+        st.metric(label="Agent Status", value="Online", delta="Connected")
+        st.metric(label="Model Version", value="Gemini Flash", delta="Current")
+        
     with st.container(border=True):
         st.subheader("⚡ Capabilities")
         st.markdown("""
@@ -293,8 +294,8 @@ with st.sidebar:
         if os.path.exists(HISTORY_FILE):
             os.remove(HISTORY_FILE)
         st.rerun()
-main_col = st.container()
-with main_col:
+
+with chat_col:
     with st.container(border=True):
         st.subheader(f"🎯 Command Center: {active_chat['title']}")
             
