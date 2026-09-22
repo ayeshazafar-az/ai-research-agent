@@ -278,16 +278,6 @@ with settings_col:
         st.metric(label="Agent Status", value="Online", delta="Connected")
         st.metric(label="Model Version", value="Gemini Flash", delta="Current")
         
-    with st.container(border=True):
-        st.subheader("⚡ Capabilities")
-        st.markdown("""
-        - 🌐 **Web Access**: Live internet searching via DDGS.
-        - 🧠 **Synthesis**: Deep reasoning and pattern reduction.
-        - 📊 **Export**: Generates dynamic PDFs on the fly.
-        - 🛡️ **Rate Limited**: Built-in quotas loop protections.
-        - 💬 **Memory**: ChatGPT-style persistent conversations!
-        """)
-        
     st.divider()
     if st.button("🗑️ Clear All History", use_container_width=True):
         st.session_state.all_chats = {}
@@ -301,6 +291,41 @@ with chat_col:
             
         # Hydrate Chat History
         chat_slug = active_chat['title'].lower().replace(" ", "_").replace(".", "").replace(":", "")[:30]
+        
+        # ChatGPT-Style Dynamic Welcome Screen
+        if len(active_chat["messages"]) == 1:
+            st.markdown("<br><br>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align: center; color: #94A3B8;'>How can I help you research today?</h3>", unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            cap_col1, cap_col2 = st.columns(2)
+            with cap_col1:
+                st.markdown("""
+                <div style='background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px;'>
+                🌐 <b>Live Web Access</b><br>
+                <span style='color: #94A3B8; font-size: 0.9em;'>Bypasses static training data by searching the Live Internet via DuckDuckGo.</span>
+                </div>
+                """, unsafe_allow_html=True)
+                st.markdown("""
+                <div style='background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;'>
+                🧠 <b>Deep Synthesis</b><br>
+                <span style='color: #94A3B8; font-size: 0.9em;'>Uses CrewAI Agents to contextually reason over data before responding.</span>
+                </div>
+                """, unsafe_allow_html=True)
+            with cap_col2:
+                st.markdown("""
+                <div style='background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px;'>
+                🛡️ <b>Quota Protections</b><br>
+                <span style='color: #94A3B8; font-size: 0.9em;'>Dynamically utilizes Gemini 3.5 Flash Lite to ensure a 500-request daily limit.</span>
+                </div>
+                """, unsafe_allow_html=True)
+                st.markdown("""
+                <div style='background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;'>
+                📄 <b>Dynamic Exporting</b><br>
+                <span style='color: #94A3B8; font-size: 0.9em;'>Generates downloadable PDF and Markdown reports asynchronously.</span>
+                </div>
+                """, unsafe_allow_html=True)
+            st.markdown("<br><br>", unsafe_allow_html=True)
         
         for i, msg in enumerate(active_chat["messages"]):
             with st.chat_message(msg["role"]):
