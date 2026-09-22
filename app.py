@@ -105,25 +105,46 @@ st.markdown("""
         padding: 10px;
     }
 
-    /* Primary Start Button */
+    /* Primary Start Button with Animated Mix Colors */
     button[data-testid="baseButton-primary"] {
         width: 100%;
         border-radius: 12px;
         height: 55px;
-        background: linear-gradient(90deg, #6236FF, #00F2FE);
+        background: linear-gradient(45deg, #FF00FF, #6236FF, #00F2FE, #00FF87);
+        background-size: 300% 300%;
+        animation: pulse_glow 5s ease infinite alternate;
         color: white;
         border: none;
-        font-weight: 800;
+        font-weight: 900;
         font-size: 1.15rem;
-        box-shadow: 0px 4px 15px rgba(0, 242, 254, 0.4);
-        transition: all 0.3s ease;
+        box-shadow: 0px 8px 30px rgba(98, 54, 255, 0.4);
+        transition: transform 0.3s ease;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
     }
     button[data-testid="baseButton-primary"]:hover {
-        transform: translateY(-2px);
-        box-shadow: 0px 8px 30px rgba(0, 242, 254, 0.7);
-        background: linear-gradient(90deg, #00F2FE, #6236FF);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0px 12px 40px rgba(0, 242, 254, 0.6);
+    }
+    
+    @keyframes pulse_glow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Dedicated Red Delete Button Styling via Tooltip Target */
+    button[title="Delete this chat thread completely"] {
+        background-color: rgba(255, 59, 48, 0.15) !important;
+        border: 1px solid rgba(255, 59, 48, 0.4) !important;
+        color: #FF3B30 !important;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    button[title="Delete this chat thread completely"]:hover {
+        background-color: rgba(255, 59, 48, 0.35) !important;
+        border-color: #FF3B30 !important;
+        box-shadow: 0px 0px 15px rgba(255, 59, 48, 0.5);
     }
     
     /* Secondary Buttons (History Items) */
