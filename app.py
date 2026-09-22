@@ -79,34 +79,53 @@ st.markdown("""
         max-width: 1200px;
     }
     
-    /* Sleek Title */
+    /* Global App Background */
+    .stApp {
+        background: radial-gradient(circle at top left, #13032b, #0B0F19, #050810) !important;
+    }
+    
+    /* Glassmorphism Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: rgba(10, 14, 23, 0.7) !important;
+        backdrop-filter: blur(15px) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    /* Bento Box Borders */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: rgba(255, 255, 255, 0.02) !important;
+        backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    /* Headings */
     .main-title {
-        font-family: 'Inter', sans-serif;
-        font-weight: 900;
-        font-size: 3.2rem;
-        background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);
+        background: linear-gradient(90deg, #00F2FE, #4FACFE);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: -15px;
+        font-weight: 800;
+        font-size: 3rem;
+        margin-bottom: 0px;
     }
     .sub-title {
         color: #94A3B8;
         font-size: 1.1rem;
-        margin-bottom: 30px;
+        margin-top: -10px;
+        margin-bottom: 20px;
     }
     
-    /* Container Borders to make them look like Glass Cards */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        border-radius: 16px;
+    /* Chat Messages */
+    [data-testid="stChatMessage"] {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 12px !important;
+        padding: 15px !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        background-color: rgba(26, 19, 47, 0.4) !important;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-        padding: 10px;
     }
 
-    /* Primary Start Button with Mix Colors */
-    button[data-testid="baseButton-primary"] {
+    /* Primary Start Button (Fix for Streamlit Cloud missing identifiers) */
+    button[kind="primary"] {
         width: 100% !important;
         border-radius: 12px !important;
         height: 55px !important;
@@ -120,38 +139,36 @@ st.markdown("""
         text-transform: uppercase !important;
         letter-spacing: 1.5px !important;
     }
-    button[data-testid="baseButton-primary"]:hover {
+    button[kind="primary"]:hover {
         transform: translateY(-3px) scale(1.02) !important;
         box-shadow: 0px 12px 40px rgba(0, 242, 254, 0.6) !important;
     }
     
-    /* Dedicated Red Delete Button Styling via Tooltip Target */
-    button[title="Delete chat"] {
+    /* Secondary Buttons (History Items) */
+    button[kind="secondary"] {
+        border-radius: 8px !important;
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #94A3B8 !important;
+        transition: all 0.2s ease !important;
+        text-align: left !important;
+    }
+    button[kind="secondary"]:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+    }
+    
+    /* Specialized Delete Button Styles */
+    .del-btn-wrapper button {
         background-color: rgba(255, 59, 48, 0.15) !important;
         border: 1px solid rgba(255, 59, 48, 0.4) !important;
         color: #FF3B30 !important;
-        border-radius: 8px;
-        transition: all 0.3s ease;
     }
-    button[title="Delete chat"]:hover {
+    .del-btn-wrapper button:hover {
         background-color: rgba(255, 59, 48, 0.35) !important;
         border-color: #FF3B30 !important;
-        box-shadow: 0px 0px 15px rgba(255, 59, 48, 0.5);
-    }
-    
-    /* Secondary Buttons (History Items) */
-    button[data-testid="baseButton-secondary"] {
-        border-radius: 8px;
-        background-color: transparent !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        color: #94A3B8 !important;
-        transition: all 0.2s ease;
-        text-align: left !important;
-    }
-    button[data-testid="baseButton-secondary"]:hover {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        border-color: rgba(255, 255, 255, 0.2) !important;
-        color: white !important;
+        box-shadow: 0px 0px 15px rgba(255, 59, 48, 0.5) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -237,6 +254,7 @@ with side_col:
                 btn_icon = ":material/warning:" if is_confirming else ":material/delete:"
                 btn_help = "Confirm delete" if is_confirming else "Delete chat"
                 
+                st.markdown('<div class="del-btn-wrapper">', unsafe_allow_html=True)
                 if st.button(" ", icon=btn_icon, key=f"del_{chat_id}", help=btn_help):
                     if is_confirming:
                         del st.session_state.all_chats[chat_id]
@@ -255,6 +273,7 @@ with side_col:
                     else:
                         st.session_state.confirm_delete = chat_id
                     st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
     with st.container(border=True):
         st.subheader("⚡ Capabilities")
