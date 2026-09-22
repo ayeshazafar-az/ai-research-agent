@@ -1,61 +1,50 @@
-# AI Research Agent 🤖
+# ✨ AI Research Agent (Autonomous)
 
-A beginner-friendly Streamlit web application that uses **CrewAI** and the **Google Gemini API** to perform internet research and write comprehensive summary reports on any topic.
+A highly advanced, fully autonomous web-research agent built with **Streamlit** and **CrewAI**. This application operates as an elite, omnichannel research analyst that actively queries the live web, synthesizes complex data, and outputs strictly formatted PDF/Markdown master reports. 
 
-## Features
-* **Single Agent Setup:** Uses a Senior Research Analyst persona to conduct research.
-* **Internet Searching:** Integrated with `ddgs` (DuckDuckGo) to search the live web for factual data.
-* **Beginner Friendly:** Clean, easy to read code with inline comments explaining each step.
-* **Secure API Keys:** No hardcoded secrets! Users can enter their API key via the web sidebar, or you can deploy securely using Streamlit Secrets.
+Recently updated to feature a fully persistent, ChatGPT-style conversational memory system mapped onto a stunning Glassmorphic "Bento Box" dashboard.
 
-## Installation (Local Testing)
+## 🚀 Core Capabilities
+- **ChatGPT-Style Memory Engine:** Engage in a persistent, natural conversation with the agent. Follow-up instructions seamlessly pull context from past dialogue.
+- **Offline Thread History:** All chats are securely written to a local JSON database database (`chat_history.json`), allowing you to effortlessly hop back and forth between past sessions exactly like ChatGPT!
+- **Dynamic File Export Engine:** Instantly generate `.md` and `.pdf` files. Memory mapping ensures your generated downloads never mysteriously vanish after you click them.
+- **Autonomous Web Browsing:** Live, unrestricted deep searching deployed via `ddgs` (DuckDuckGo Search engine module).
+- **Quota Armor:** Intelligently hardcoded to utilize `gemini-3.5-flash-lite`, bypassing Google's strict 20-Request-Per-Day limit and granting you 500 Daily Requests!
 
-1. **Clone or Download** this repository.
-2. **Create a virtual environment** (optional but recommended):
+## 📸 Architecture
+- **Frontend Dashboard:** Streamlit natively wrapped in a highly appealing Glassmorphism aesthetic.
+- **AI Core:** Langchain + CrewAI (`Agent` & `Task` modeling). 
+- **LLM Engine:** Google Gemini (Integrated safely against 503 limits).
+
+## 🛠️ Installation & Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ayeshazafar-az/ai-research-agent.git
+   cd ai-research-agent
+   ```
+
+2. Establish your environment:
    ```bash
    python -m venv .venv
-   # Windows:
    .venv\Scripts\activate
-   # Mac/Linux:
-   source .venv/bin/activate
-   ```
-3. **Install Dependencies:**
-   ```bash
    pip install -r requirements.txt
    ```
-4. **Run the Application:**
+
+3. Launch the Application:
    ```bash
    streamlit run app.py
    ```
-5. You can enter your Gemini API key securely in the browser sidebar when the app opens!
 
-## How to Deploy to Streamlit Community Cloud (Without Leaking Secrets!)
+## 🔒 Configuration & Streamlit Cloud Deployment
+This application was engineered explicitly to be continuously deployed on **Streamlit Community Cloud**.
 
-When you deploy a public app, you **never** want to paste your API keys directly into `app.py`. Instead, follow these steps:
-
-1. **Upload to GitHub:**
-   - Initialize a Git repository in this folder.
-   - Commit `app.py`, `requirements.txt`, and `.gitignore`.
-   - Push it to a public or private GitHub repository.
-
-2. **Connect to Streamlit Cloud:**
-   - Go to [share.streamlit.io](https://share.streamlit.io/).
-   - Click **New App** and select your GitHub repository.
-
-3. **Set up Secrets (So you don't have to type it in UI):**
-   - Click on **Advanced Settings** before deploying (or go to App Settings > Secrets after deploying).
-   - Add your API Key into the Secrets text box exactly like this:
-     ```toml
-     GEMINI_API_KEY = "AIzaSy_your_real_api_key_here..."
-     ```
-   - *The code in `app.py` is already set up to automatically read `GEMINI_API_KEY` from Streamlit secrets and skip the sidebar prompt if it's there!*
-
-## File Structure
+When deploying for production, ensure you map your API Key natively inside Streamlit Cloud's `Advanced settings > Secrets` modal to prevent public exposure:
+```toml
+# .streamlit/secrets.toml
+GEMINI_API_KEY = "AIzaSyYourSecretKey..."
 ```
-ai-research-agent/
-│
-├── app.py                # Main Streamlit Application and CrewAI logic
-├── requirements.txt      # Python dependencies
-├── .gitignore            # Tells git not to upload .venv or local caches
-└── README.md             # This file!
-```
+
+*Note: The frontend allows you to paste the API Key directly into the sidebar if you are running bare-metal locally!*
+
+---
+**Built by Ayesha** | *2026 Architectural Codebase*
