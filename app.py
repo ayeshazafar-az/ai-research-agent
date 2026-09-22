@@ -5,6 +5,7 @@ import json
 import uuid
 from crewai import Agent, Task, Crew, LLM
 from fpdf import FPDF
+import markdown
 from crewai.tools import tool
 from ddgs import DDGS
 
@@ -42,11 +43,13 @@ def generate_pdf(text_content):
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Helvetica", size=11)
-    pdf.set_text_color(20, 20, 20)
+    pdf.set_font("Helvetica", size=11)
     
-    # Clean text to prevent FPDF unicode errors
-    safe_text = text_content.encode('latin-1', 'replace').decode('latin-1')
-    pdf.multi_cell(w=0, h=6, text=safe_text)
+    # Process rich markdown formatting utilizing native HTML hooks in fpdf2
+    safe_text = text_content.encode('latin-1', 'ignore').decode('latin-1')
+    html_content = markdown.markdown(safe_text)
+    
+    pdf.write_html(html_content)
     return bytes(pdf.output())
 
 # ==========================================
