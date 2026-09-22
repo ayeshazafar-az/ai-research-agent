@@ -167,26 +167,11 @@ with col_head2:
     st.markdown("<br>", unsafe_allow_html=True)
     st.info("🟢 **System Ready** | Awaiting Command")
 
-st.divider()
-
-import json
 import uuid
 
-# Load Chat History
-HISTORY_FILE = "chat_history.json"
-
-def load_chats():
-    if os.path.exists(HISTORY_FILE):
-        with open(HISTORY_FILE, "r") as f:
-            return json.load(f)
-    return {}
-
-def save_chats(chats):
-    with open(HISTORY_FILE, "w") as f:
-        json.dump(chats, f)
-
+# Memory Management: Isolated Per-Session Memory (Stateless Deployment)
 if "all_chats" not in st.session_state:
-    st.session_state.all_chats = load_chats()
+    st.session_state.all_chats = {}
 
 if "current_chat_id" not in st.session_state:
     # Set to newest chat or create new
@@ -199,7 +184,6 @@ if "current_chat_id" not in st.session_state:
             "title": "New Chat",
             "messages": [{"role": "assistant", "content": "System Online. What would you like to research today?"}]
         }
-        save_chats(st.session_state.all_chats)
 
 # Active chat reference
 active_chat = st.session_state.all_chats[st.session_state.current_chat_id]
@@ -213,7 +197,7 @@ with st.sidebar:
             "title": "New Chat",
             "messages": [{"role": "assistant", "content": "System Online. What would you like to research today?"}]
         }
-        save_chats(st.session_state.all_chats)
+
         st.rerun()
 
     with st.container(border=True):
@@ -252,7 +236,7 @@ with st.sidebar:
                             }
                         elif st.session_state.current_chat_id == chat_id:
                             st.session_state.current_chat_id = list(st.session_state.all_chats.keys())[-1]
-                        save_chats(st.session_state.all_chats)
+                
                     else:
                         st.session_state.confirm_delete = chat_id
                     st.rerun()
@@ -281,8 +265,6 @@ with settings_col:
     st.divider()
     if st.button("🗑️ Clear All History", use_container_width=True):
         st.session_state.all_chats = {}
-        if os.path.exists(HISTORY_FILE):
-            os.remove(HISTORY_FILE)
         st.rerun()
 
 with chat_col:
@@ -364,7 +346,7 @@ with chat_col:
                 
                 # Instantly display user prompt
                 active_chat["messages"].append({"role": "user", "content": prompt})
-                save_chats(st.session_state.all_chats)
+        
                 
                 with st.chat_message("user"):
                     st.markdown(prompt)
@@ -417,7 +399,7 @@ with chat_col:
                                 "content": final_text,
                                 "md_text": final_text
                             })
-                            save_chats(st.session_state.all_chats)
+                    
                             
                             # Force rerun to natively render the new message into the loop above!
                             st.rerun()
