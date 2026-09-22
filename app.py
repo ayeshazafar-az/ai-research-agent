@@ -69,7 +69,10 @@ st.markdown("""
     
     /* Global App Background */
     .stApp {
-        background: radial-gradient(circle at top left, #0F172A, #020617, #000000) !important;
+        background-color: #020617 !important;
+        background-image: 
+            radial-gradient(circle at 0% 0%, rgba(124, 58, 237, 0.12) 0%, transparent 50%),
+            radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.12) 0%, transparent 50%) !important;
     }
     
     /* Glassmorphism Sidebar */
