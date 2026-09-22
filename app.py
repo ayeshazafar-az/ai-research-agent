@@ -1,10 +1,14 @@
 import streamlit as st
 import os
 import requests
+import json
+import uuid
 from crewai import Agent, Task, Crew, LLM
 from fpdf import FPDF
 from crewai.tools import tool
 from ddgs import DDGS
+
+st.set_page_config(page_title="AI Research Agent", layout="wide", initial_sidebar_state="expanded")
 
 def get_best_gemini_model(api_key: str) -> str:
     """Return a highly permissive model that bypasses strict Free Tier quotas."""
@@ -220,10 +224,8 @@ if "current_chat_id" not in st.session_state:
 active_chat = st.session_state.all_chats[st.session_state.current_chat_id]
 
 # Bento Box Dashboard Layout
-side_col, main_col = st.columns([3, 7], gap="large")
-
-with side_col:
-    if st.button("➕ New Chat", use_container_width=True, type="primary"):
+with st.sidebar:
+    if st.button("➕ New Chat", use_container_width=True, type="primary") or not active_chat:
         new_id = str(uuid.uuid4())
         st.session_state.current_chat_id = new_id
         st.session_state.all_chats[new_id] = {
@@ -291,7 +293,7 @@ with side_col:
         if os.path.exists(HISTORY_FILE):
             os.remove(HISTORY_FILE)
         st.rerun()
-
+main_col = st.container()
 with main_col:
     with st.container(border=True):
         st.subheader(f"🎯 Command Center: {active_chat['title']}")
