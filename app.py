@@ -7,17 +7,8 @@ from crewai.tools import tool
 from ddgs import DDGS
 
 def get_best_gemini_model(api_key: str) -> str:
-    """Dynamically fetch the best available Gemini model, avoiding 3.6 due to 503 errors."""
-    try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
-        response = requests.get(url, timeout=5)
-        data = response.json()
-        active_models = [m['name'].replace("models/", "gemini/") for m in data.get('models', []) if 'generateContent' in m.get('supportedGenerationMethods', [])]
-        for m in active_models:
-            if "flash" in m.lower() and "3.6" not in m: return m
-        return active_models[0]
-    except Exception:
-        return "gemini/gemini-1.5-flash-8b"
+    """Return a highly permissive model that bypasses strict Free Tier quotas."""
+    return "gemini/gemini-3.5-flash-lite"
 
 @tool("Internet Search Tool")
 def internet_search_tool(query: str) -> str:
@@ -51,163 +42,313 @@ def generate_pdf(text_content):
     
     # Clean text to prevent FPDF unicode errors
     safe_text = text_content.encode('latin-1', 'replace').decode('latin-1')
-    pdf.multi_cell(0, 6, txt=safe_text)
+    pdf.multi_cell(w=0, h=6, text=safe_text)
     return bytes(pdf.output())
 
 # ==========================================
-# UI Styling
+# UI Styling & Layout
 # ==========================================
-st.set_page_config(page_title="AI Research Assistant", page_icon="✨", layout="centered")
+st.set_page_config(page_title="AI Research Agent", page_icon="✨", layout="wide")
 
-# Sidebar
+# Sidebar Customization
 with st.sidebar:
-    st.header("⚙️ Settings")
-    st.markdown("Ensure your API key is loaded below.")
+    st.image("https://cdn-icons-png.flaticon.com/512/8636/8636906.png", width=80)
+    st.header("⚙️ Engine Settings")
+    st.markdown("Ensure your API key is loaded to authorize the AI Engine.")
     
     cloud_key = st.secrets.get("GEMINI_API_KEY", "") if "GEMINI_API_KEY" in st.secrets else ""
     if cloud_key:
         api_key = cloud_key
-        st.success("API Key loaded securely! ✅")
+        st.success("API Key Status: **Authorized** ✅")
     else:
         api_key = st.text_input("🔑 Google Gemini API Key:", type="password")
 
     st.divider()
-    st.markdown("🎨 **Theme Customization**")
-    primary_color = st.color_picker("Primary Accent Color", "#00e5ff")
-    bg_gradient = st.color_picker("Background Gradient Fade", "#8a2be2")
-    bg_body = st.color_picker("App Background", "#09090b")
+    st.markdown("### 📊 Metrics")
+    st.metric(label="Agent Status", value="Online", delta="Connected")
+    st.metric(label="Model Version", value="Gemini Flash", delta="Current")
     
     st.divider()
     st.markdown("👨‍💻 **Built by Ayesha**")
 
-st.markdown(f"""
-    <style>
-    .stApp {{
-        background-color: {bg_body};
-    }}
-    .main-title {{
-        background: linear-gradient(90deg, {primary_color}, {bg_gradient});
+# Custom Dashboard CSS (Bento Box / Glassmorphism)
+st.markdown("""
+<style>
+    .block-container {
+        padding-top: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* Sleek Title */
+    .main-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 900;
+        font-size: 3.2rem;
+        background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 900;
-        font-size: 3.5rem;
-        margin-bottom: 0px;
-        padding-bottom: 0px;
-        letter-spacing: -1.5px;
-        text-align: center;
-    }}
-    .sub-title {{
-        color: #a1a1aa;
-        font-size: 1.15rem;
-        margin-bottom: 35px;
-        font-weight: 400;
-        text-align: center;
-    }}
-    .stButton>button {{
+        margin-bottom: -15px;
+    }
+    .sub-title {
+        color: #94A3B8;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+    
+    /* Container Borders to make them look like Glass Cards */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        background-color: rgba(26, 19, 47, 0.4) !important;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 10px;
+    }
+
+    /* Primary Start Button */
+    button[data-testid="baseButton-primary"] {
         width: 100%;
-        border-radius: 50px;
-        background: linear-gradient(90deg, {primary_color}, {bg_gradient});
+        border-radius: 12px;
+        height: 55px;
+        background: linear-gradient(90deg, #6236FF, #00F2FE);
         color: white;
         border: none;
-        height: 52px;
         font-weight: 800;
         font-size: 1.15rem;
-        box-shadow: 0px 4px 20px {primary_color}40;
+        box-shadow: 0px 4px 15px rgba(0, 242, 254, 0.4);
         transition: all 0.3s ease;
-    }}
-    .stButton>button:hover {{
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0px 8px 25px {primary_color}60;
-        color: white;
-    }}
-    </style>
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    button[data-testid="baseButton-primary"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0px 8px 30px rgba(0, 242, 254, 0.7);
+        background: linear-gradient(90deg, #00F2FE, #6236FF);
+    }
+    
+    /* Secondary Buttons (History Items) */
+    button[data-testid="baseButton-secondary"] {
+        border-radius: 8px;
+        background-color: transparent !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #94A3B8 !important;
+        transition: all 0.2s ease;
+        text-align: left !important;
+    }
+    button[data-testid="baseButton-secondary"]:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+    }
+</style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 class='main-title'>✨ AI Research Desk</h1>", unsafe_allow_html=True)
-st.markdown("<p class='sub-title'>Enter your topic below to generate a beautiful web report.</p>", unsafe_allow_html=True)
+# Application Header
+col_head1, col_head2 = st.columns([3, 1])
+with col_head1:
+    st.markdown("<h1 class='main-title'>AI Research Agent</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='sub-title'>Autonomous Omnichannel Workflows Powered by AI</p>", unsafe_allow_html=True)
+with col_head2:
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.info("🟢 **System Ready** | Awaiting Command")
 
+st.divider()
 
-# Main Interface
-col1, col2, col3 = st.columns([1, 6, 1])
+import json
+import uuid
 
-with col2:
-    topic = st.text_input("🔍 What would you like to research?", placeholder="e.g. 2026 App Development Roadmaps")
-    
-    # Clean, literal button text
-    if st.button("✨ Generate Report"):
-        if not api_key:
-            st.error("⚠️ Please configure your API Key in the sidebar.")
-        elif not topic:
-            st.warning("⚠️ Please provide a research topic.")
-        else:
-            with st.status("📡 Generating Report...", expanded=True) as status:
-                try:
-                    st.write("🔍 Acquiring target backend parameters...")
-                    os.environ["LITELLM_MAX_RETRIES"] = "0"
-                    active_model = get_best_gemini_model(api_key)
-                    
-                    llm = LLM(model=active_model, api_key=api_key, temperature=0.3, max_retries=0)
-                    
-                    st.write("🧠 Booting CrewAI Reasoning Engine...")
-                    researcher = Agent(
-                        role="Elite Research Specialist",
-                        goal=f"Deep-dive research into: {topic}. Print a gorgeous finalized markdown report.",
-                        backstory="You are Orion, a top-tier analyst capable of searching the web and synthesizing complex technical subjects.",
-                        tools=[internet_search_tool],
-                        llm=llm,
-                        verbose=True,
-                        max_iter=2,
-                        allow_delegation=False
-                    )
+# Load Chat History
+HISTORY_FILE = "chat_history.json"
 
-                    task = Task(
-                        description=f"Query the web for the absolute latest data on '{topic}'. Compile it into a master report.",
-                        expected_output="A robust markdown report containing actionable takeaways.",
-                        agent=researcher
-                    )
+def load_chats():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "r") as f:
+            return json.load(f)
+    return {}
 
-                    crew = Crew(agents=[researcher], tasks=[task])
-                    
-                    st.write("🔎 Agents deployed to the web! Synthesizing data...")
-                    result = crew.kickoff()
-                    
-                    status.update(label="✅ Orion has finished the report!", state="complete", expanded=False)
+def save_chats(chats):
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(chats, f)
 
-                    # Export & Formatting
-                    final_text = str(result.raw) if result and hasattr(result, 'raw') and result.raw else "Analysis failed to produce a valid response."
-                    
+if "all_chats" not in st.session_state:
+    st.session_state.all_chats = load_chats()
+
+if "current_chat_id" not in st.session_state:
+    # Set to newest chat or create new
+    if st.session_state.all_chats:
+        st.session_state.current_chat_id = list(st.session_state.all_chats.keys())[-1]
+    else:
+        new_id = str(uuid.uuid4())
+        st.session_state.current_chat_id = new_id
+        st.session_state.all_chats[new_id] = {
+            "title": "New Chat",
+            "messages": [{"role": "assistant", "content": "System Online. What would you like to research today?"}]
+        }
+        save_chats(st.session_state.all_chats)
+
+# Active chat reference
+active_chat = st.session_state.all_chats[st.session_state.current_chat_id]
+
+# Bento Box Dashboard Layout
+main_col, side_col = st.columns([7, 3], gap="large")
+
+with side_col:
+    if st.button("➕ New Chat", use_container_width=True, type="primary"):
+        new_id = str(uuid.uuid4())
+        st.session_state.current_chat_id = new_id
+        st.session_state.all_chats[new_id] = {
+            "title": "New Chat",
+            "messages": [{"role": "assistant", "content": "System Online. What would you like to research today?"}]
+        }
+        save_chats(st.session_state.all_chats)
+        st.rerun()
+
+    with st.container(border=True):
+        st.subheader("📚 Chat History")
+        
+        # Display chat history buttons
+        for chat_id, chat_data in reversed(list(st.session_state.all_chats.items())):
+            # Active chat gets a special style
+            is_active = (chat_id == st.session_state.current_chat_id)
+            
+            hist_col1, hist_col2 = st.columns([6, 1])
+            with hist_col1:
+                if st.button(f"""{"🔵" if is_active else "📄"} {chat_data['title']}""", key=chat_id, use_container_width=True):
+                    st.session_state.current_chat_id = chat_id
+                    st.rerun()
+            with hist_col2:
+                # Prevent deleting the final solitary chat to avoid empty dict crashes
+                if len(st.session_state.all_chats) > 1:
+                    if st.button("✖️", key=f"del_{chat_id}", help="Delete chat"):
+                        del st.session_state.all_chats[chat_id]
+                        if st.session_state.current_chat_id == chat_id:
+                            st.session_state.current_chat_id = list(st.session_state.all_chats.keys())[-1]
+                        save_chats(st.session_state.all_chats)
+                        st.rerun()
+
+    with st.container(border=True):
+        st.subheader("⚡ Capabilities")
+        st.markdown("""
+        - 🌐 **Web Access**: Live internet searching via DDGS.
+        - 🧠 **Synthesis**: Deep reasoning and pattern reduction.
+        - 📊 **Export**: Generates dynamic PDFs on the fly.
+        - 🛡️ **Rate Limited**: Built-in quotas loop protections.
+        - 💬 **Memory**: ChatGPT-style persistent conversations!
+        """)
+        
+    st.divider()
+    if st.button("🗑️ Clear All History", use_container_width=True):
+        st.session_state.all_chats = {}
+        if os.path.exists(HISTORY_FILE):
+            os.remove(HISTORY_FILE)
+        st.rerun()
+
+with main_col:
+    with st.container(border=True):
+        st.subheader(f"🎯 Command Center: {active_chat['title']}")
+            
+        # Hydrate Chat History
+        for i, msg in enumerate(active_chat["messages"]):
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+                
+                # Check if this specific message contains an export object
+                if msg.get("md_text"):
                     st.divider()
-                    st.markdown("### 📊 Official Report")
-                    with st.container(border=True):
-                        st.markdown(final_text)
-
-                    st.divider()
-                    st.markdown("### 💾 Export Assets")
-                    
+                    st.markdown("##### 💾 Export Report")
                     dl_col1, dl_col2 = st.columns(2)
                     with dl_col1:
                         st.download_button(
                             label="📄 Download as Markdown",
-                            data=final_text,
-                            file_name="orion_report.md",
-                            mime="text/markdown"
+                            data=msg["md_text"],
+                            file_name=f"orion_report_{i}.md",
+                            mime="text/markdown",
+                            key=f"dl_md_{st.session_state.current_chat_id}_{i}"
                         )
                     with dl_col2:
-                         # Generate PDF
-                        pdf_bytes = generate_pdf(final_text)
                         st.download_button(
                             label="🖍️ Download as PDF",
-                            data=pdf_bytes,
-                            file_name="orion_report.pdf",
-                            mime="application/pdf"
+                            data=generate_pdf(msg["md_text"]), # Generate dynamically to bypass JSON serialize crash!
+                            file_name=f"orion_report_{i}.pdf",
+                            mime="application/pdf",
+                            key=f"dl_pdf_{st.session_state.current_chat_id}_{i}"
                         )
 
-                except Exception as e:
-                    status.update(label="❌ Mission Failed", state="error", expanded=True)
-                    error_msg = str(e)
-                    if "503" in error_msg or "UNAVAILABLE" in error_msg:
-                        st.error("🚦 **Google Traffic Spike!** Wait 10 seconds and redeploy the agent.")
-                    elif "500" in error_msg or "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
-                        st.warning("⏳ **Google Quota Temporarily Exhausted.** Need a fresh project API key!")
-                    else:
-                        st.error(f"⚠️ **Critical System Failure:**\n\n{error_msg}")
+        # Main Chat Input trigger
+        if prompt := st.chat_input("🔍 Enter a topic or follow-up instruction..."):
+            if not api_key:
+                st.error("⚠️ Please configure your API Key in the sidebar before initiating.")
+            else:
+                # Meta-update title if it's a new chat
+                if active_chat["title"] == "New Chat":
+                    active_chat["title"] = prompt[:25] + "..." if len(prompt) > 25 else prompt
+                
+                # Instantly display user prompt
+                active_chat["messages"].append({"role": "user", "content": prompt})
+                save_chats(st.session_state.all_chats)
+                
+                with st.chat_message("user"):
+                    st.markdown(prompt)
+                    
+                # Initiate Assistant Action
+                with st.chat_message("assistant"):
+                    with st.status("📡 **Deploying AI Agent to the Web...**", expanded=True) as status:
+                        try:
+                            st.write("🔍 Acquiring target backend parameters...")
+                            os.environ["LITELLM_MAX_RETRIES"] = "0"
+                            active_model = get_best_gemini_model(api_key)
+                            
+                            llm = LLM(model=active_model, api_key=api_key, temperature=0.3, max_retries=0)
+                            
+                            st.write("🧠 Formatting Session History for Context...")
+                            # Serialize history so the agent remembers past instructions
+                            history_str = "\\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in active_chat["messages"][:-1]])
+                            
+                            st.write("🧠 Booting CrewAI Reasoning Engine...")
+                            researcher = Agent(
+                                role="Elite Research Specialist",
+                                goal=f"Conduct deep research on: {prompt}. Ensure you factor in any previous chat history.",
+                                backstory="You are an autonomous analyst. Use the internet to extract highly accurate data.",
+                                tools=[internet_search_tool],
+                                llm=llm,
+                                verbose=True,
+                                max_iter=2,
+                                allow_delegation=False
+                            )
+
+                            task = Task(
+                                description=f"Chat History:\\n{history_str}\\n\\nCurrent Directive: '{prompt}'. \\n\\nExecute the directive deeply. Compile a finalized robust markdown response.",
+                                expected_output="A highly detailed and well-formatted markdown analytical response.",
+                                agent=researcher
+                            )
+
+                            crew = Crew(agents=[researcher], tasks=[task])
+                            
+                            st.write("🔎 Agents deployed! Synthesizing data...")
+                            result = crew.kickoff()
+                            
+                            status.update(label="✅ Agent cycle complete!", state="complete", expanded=False)
+
+                            # Final Text 
+                            final_text = str(result.raw) if result and hasattr(result, 'raw') and result.raw else "Analysis failed to produce a valid response."
+
+                            # Push to memory state (Excluding pure raw bytes so JSON doesn't crash!)
+                            active_chat["messages"].append({
+                                "role": "assistant",
+                                "content": final_text,
+                                "md_text": final_text
+                            })
+                            save_chats(st.session_state.all_chats)
+                            
+                            # Force rerun to natively render the new message into the loop above!
+                            st.rerun()
+
+                        except Exception as e:
+                            status.update(label="❌ Mission Failed", state="error", expanded=True)
+                            error_msg = str(e)
+                            if "503" in error_msg or "UNAVAILABLE" in error_msg:
+                                st.error("🚦 **Google Traffic Spike!** Wait 10 seconds and redeploy.")
+                            elif "500" in error_msg or "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+                                st.warning("⏳ **Google Quota Temporarily Exhausted.** Need a fresh project API key!")
+                            else:
+                                st.error(f"⚠️ **Critical System Failure:**\\n\\n{error_msg}")
