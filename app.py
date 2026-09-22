@@ -107,22 +107,22 @@ st.markdown("""
 
     /* Primary Start Button with Mix Colors */
     button[data-testid="baseButton-primary"] {
-        width: 100%;
-        border-radius: 12px;
-        height: 55px;
-        background: linear-gradient(90deg, #6236FF 0%, #00F2FE 100%);
-        color: white;
-        border: none;
-        font-weight: 800;
-        font-size: 1.15rem;
-        box-shadow: 0px 8px 30px rgba(98, 54, 255, 0.4);
-        transition: transform 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
+        width: 100% !important;
+        border-radius: 12px !important;
+        height: 55px !important;
+        background: linear-gradient(90deg, #6236FF 0%, #00F2FE 100%) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 800 !important;
+        font-size: 1.15rem !important;
+        box-shadow: 0px 8px 30px rgba(98, 54, 255, 0.4) !important;
+        transition: transform 0.3s ease !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1.5px !important;
     }
     button[data-testid="baseButton-primary"]:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0px 12px 40px rgba(0, 242, 254, 0.6);
+        transform: translateY(-3px) scale(1.02) !important;
+        box-shadow: 0px 12px 40px rgba(0, 242, 254, 0.6) !important;
     }
     
     /* Dedicated Red Delete Button Styling via Tooltip Target */
