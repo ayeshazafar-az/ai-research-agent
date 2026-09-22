@@ -105,17 +105,15 @@ st.markdown("""
         padding: 10px;
     }
 
-    /* Primary Start Button with Animated Mix Colors */
+    /* Primary Start Button with Mix Colors */
     button[data-testid="baseButton-primary"] {
         width: 100%;
         border-radius: 12px;
         height: 55px;
-        background: linear-gradient(45deg, #FF00FF, #6236FF, #00F2FE, #00FF87);
-        background-size: 300% 300%;
-        animation: pulse_glow 5s ease infinite alternate;
+        background: linear-gradient(90deg, #6236FF 0%, #00F2FE 100%);
         color: white;
         border: none;
-        font-weight: 900;
+        font-weight: 800;
         font-size: 1.15rem;
         box-shadow: 0px 8px 30px rgba(98, 54, 255, 0.4);
         transition: transform 0.3s ease;
@@ -127,21 +125,15 @@ st.markdown("""
         box-shadow: 0px 12px 40px rgba(0, 242, 254, 0.6);
     }
     
-    @keyframes pulse_glow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    
     /* Dedicated Red Delete Button Styling via Tooltip Target */
-    button[title="Delete this chat thread completely"] {
+    button[title="Delete chat"] {
         background-color: rgba(255, 59, 48, 0.15) !important;
         border: 1px solid rgba(255, 59, 48, 0.4) !important;
         color: #FF3B30 !important;
         border-radius: 8px;
         transition: all 0.3s ease;
     }
-    button[title="Delete this chat thread completely"]:hover {
+    button[title="Delete chat"]:hover {
         background-color: rgba(255, 59, 48, 0.35) !important;
         border-color: #FF3B30 !important;
         box-shadow: 0px 0px 15px rgba(255, 59, 48, 0.5);
@@ -234,18 +226,35 @@ with side_col:
             
             hist_col1, hist_col2 = st.columns([6, 1])
             with hist_col1:
-                if st.button(f"""{"🔵" if is_active else "📄"} {chat_data['title']}""", key=chat_id, use_container_width=True):
+                # Truncate long titles in the sidebar button cleanly
+                display_title = chat_data['title'][:22] + "..." if len(chat_data['title']) > 22 else chat_data['title']
+                if st.button(f"""{"🔵" if is_active else "📄"} {display_title}""", key=chat_id, use_container_width=True):
                     st.session_state.current_chat_id = chat_id
                     st.rerun()
             with hist_col2:
-                # Prevent deleting the final solitary chat to avoid empty dict crashes
-                if len(st.session_state.all_chats) > 1:
-                    if st.button("✖️", key=f"del_{chat_id}", help="Delete chat"):
+                # Two-Step Confirmation Delete Logic
+                is_confirming = st.session_state.get('confirm_delete') == chat_id
+                btn_icon = ":material/warning:" if is_confirming else ":material/delete:"
+                btn_help = "Confirm delete" if is_confirming else "Delete chat"
+                
+                if st.button(" ", icon=btn_icon, key=f"del_{chat_id}", help=btn_help):
+                    if is_confirming:
                         del st.session_state.all_chats[chat_id]
-                        if st.session_state.current_chat_id == chat_id:
+                        st.session_state.confirm_delete = None
+                        # Automatically instantiate a new chat if the final one was deleted
+                        if not st.session_state.all_chats:
+                            new_id = str(uuid.uuid4())
+                            st.session_state.current_chat_id = new_id
+                            st.session_state.all_chats[new_id] = {
+                                "title": "New Chat",
+                                "messages": [{"role": "assistant", "content": "System Online. What would you like to research today?"}]
+                            }
+                        elif st.session_state.current_chat_id == chat_id:
                             st.session_state.current_chat_id = list(st.session_state.all_chats.keys())[-1]
                         save_chats(st.session_state.all_chats)
-                        st.rerun()
+                    else:
+                        st.session_state.confirm_delete = chat_id
+                    st.rerun()
 
     with st.container(border=True):
         st.subheader("⚡ Capabilities")
@@ -269,6 +278,8 @@ with main_col:
         st.subheader(f"🎯 Command Center: {active_chat['title']}")
             
         # Hydrate Chat History
+        chat_slug = active_chat['title'].lower().replace(" ", "_").replace(".", "").replace(":", "")[:30]
+        
         for i, msg in enumerate(active_chat["messages"]):
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
@@ -282,7 +293,7 @@ with main_col:
                         st.download_button(
                             label="📄 Download as Markdown",
                             data=msg["md_text"],
-                            file_name=f"orion_report_{i}.md",
+                            file_name=f"{chat_slug}_report.md",
                             mime="text/markdown",
                             key=f"dl_md_{st.session_state.current_chat_id}_{i}"
                         )
@@ -290,7 +301,7 @@ with main_col:
                         st.download_button(
                             label="🖍️ Download as PDF",
                             data=generate_pdf(msg["md_text"]), # Generate dynamically to bypass JSON serialize crash!
-                            file_name=f"orion_report_{i}.pdf",
+                            file_name=f"{chat_slug}_report.pdf",
                             mime="application/pdf",
                             key=f"dl_pdf_{st.session_state.current_chat_id}_{i}"
                         )
