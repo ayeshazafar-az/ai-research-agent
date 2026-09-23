@@ -14,8 +14,6 @@
 > **Orion** is not just a static script. It is a fully persistent, hyper-intelligent web analyst. Wrapped in a breathtaking Glassmorphic **Bento Box Dashboard**, it mimics the native ChatGPT experience while possessing the raw power to actively browse the web and instantly synthesize live data into downloadable master reports.
 
 ## 🎥 Live Demonstration
-*(Drag and drop your 22-second `.mp4` file directly over this text in the GitHub Web Editor to automatically upload and embed the video!)*
-
 
 https://github.com/user-attachments/assets/83f5f9e0-73ab-417a-9956-872c743e5f22
 
