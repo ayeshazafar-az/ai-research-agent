@@ -16,6 +16,10 @@
 ## 🎥 Live Demonstration
 *(Drag and drop your 22-second `.mp4` file directly over this text in the GitHub Web Editor to automatically upload and embed the video!)*
 
+
+https://github.com/user-attachments/assets/83f5f9e0-73ab-417a-9956-872c743e5f22
+
+
 ## ✨ High-Fidelity Features
 
 | 🌟 Capability | 🛠️ Implementation & Mechanic |
